@@ -44,6 +44,9 @@ final class LehiUser: Model {
         let surnameString = try node.extract(Keys.surname) as String
         surname = try surnameString.validated()
         
+        let usernameString = try node.extract(Keys.username) as String
+        username = try usernameString.validated()
+        
         let passwordString = try node.extract(Keys.password) as String
         password = passwordString
         
@@ -57,9 +60,18 @@ final class LehiUser: Model {
             Keys.LehiUserID: id,
             Keys.givenName: givenName.value,
             Keys.surname: surname.value,
+            Keys.username: username.value,
             Keys.password: password,
             Keys.imagePath: imagePath
             ])
+    }
+    
+    static func prepare(_ database: Database) throws {
+        
+    }
+    
+    static func revert(_ database: Database) throws {
+        
     }
     
 }
