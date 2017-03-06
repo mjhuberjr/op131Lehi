@@ -11,8 +11,8 @@ final class LehiUser: Model {
     
     // MARK: - Properties
     
-    var givenName: String
-    var surname: String
+    var givenName: Valid<NameValidator>
+    var surname: Valid<NameValidator>
     var username: Valid<UsernameValidator>
     var password: String
     var imagePath: String?
