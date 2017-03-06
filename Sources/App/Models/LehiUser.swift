@@ -66,6 +66,8 @@ final class LehiUser: Model {
             ])
     }
     
+    // MARK: - Preparation
+    
     static func prepare(_ database: Database) throws {
         try database.create(Keys.lehiUserDatabase) { users in
             users.id()
@@ -79,6 +81,23 @@ final class LehiUser: Model {
     
     static func revert(_ database: Database) throws {
         try database.delete(Keys.lehiUserDatabase)
+    }
+    
+    // MARK: - Register User
+    
+    static func register(givenName: String,
+                         surname: String,
+                         username: String,
+                         rawPassword: String,
+                         imagePath: String? = nil) throws -> LehiUser {
+        
+        var newUser = try LehiUser(givenName: givenName, surname: surname, username: username, rawPassword: rawPassword, imagePath: imagePath)
+        if try LehiUser.query().filter(Keys.username, newUser.username.value).first() == nil {
+            try newUser.save()
+            return newUser
+        } else {
+            throw AccountTakenError()
+        }
     }
     
 }
