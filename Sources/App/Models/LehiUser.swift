@@ -17,13 +17,22 @@ final class LehiUser: Model {
     var password: String
     var imagePath: String?
     
-    init(givenName: String, surname: String, username: String, rawPassword: String, imagePath: String? = nil) {
-        self.givenName = givenName
-        self.surname = surname
+    init(givenName: String,
+         surname: String,
+         username: String,
+         rawPassword: String,
+         imagePath: String? = nil) throws {
+        
+        self.givenName = try givenName.validated()
+        self.surname = try surname.validated()
         self.username = try username.validated()
         let validatedPassword: Valid<PasswordValidator> = try rawPassword.validated()
         self.password = BCrypt.hash(password: validatedPassword.value)
         self.imagePath = imagePath
+    }
+    
+    init(node: Node, in context: Context) throws {
+        
     }
     
 }
