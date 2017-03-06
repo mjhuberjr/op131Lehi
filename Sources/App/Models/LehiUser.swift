@@ -17,6 +17,8 @@ final class LehiUser: Model {
     var password: String
     var imagePath: String?
     
+    // MARK: - Initializers
+    
     init(givenName: String,
          surname: String,
          username: String,
@@ -31,8 +33,33 @@ final class LehiUser: Model {
         self.imagePath = imagePath
     }
     
+    // MARK: - NodeInitializable
+    
     init(node: Node, in context: Context) throws {
+        id = try node.extract(Keys.LehiUserID)
         
+        let givenNameString = try node.extract(Keys.givenName) as String
+        givenName = try givenNameString.validated()
+        
+        let surnameString = try node.extract(Keys.surname) as String
+        surname = try surnameString.validated()
+        
+        let passwordString = try node.extract(Keys.password) as String
+        password = passwordString
+        
+        imagePath = try node.extract(Keys.imagePath) as String
+    }
+    
+    // MARK: - NodeRepresentable
+    
+    func makeNode(context: Context) throws -> Node {
+        return try Node(node: [
+            Keys.LehiUserID: id,
+            Keys.givenName: givenName.value,
+            Keys.surname: surname.value,
+            Keys.password: password,
+            Keys.imagePath: imagePath
+            ])
     }
     
 }

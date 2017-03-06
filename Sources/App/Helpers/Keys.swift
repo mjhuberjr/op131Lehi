@@ -4,7 +4,7 @@ enum Keys {
     
     // MARK: - LehiUser Keys
     
-    static let id = "id"
+    static let LehiUserID = "LehiUserID"
     static let givenName = "givenName"
     static let surname = "surname"
     static let password = "password"
