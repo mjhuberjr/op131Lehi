@@ -36,7 +36,7 @@ final class LehiUser: Model {
     // MARK: - NodeInitializable
     
     init(node: Node, in context: Context) throws {
-        id = try node.extract(Keys.LehiUserID)
+        id = try node.extract(Keys.lehiUserID)
         
         let givenNameString = try node.extract(Keys.givenName) as String
         givenName = try givenNameString.validated()
@@ -57,7 +57,7 @@ final class LehiUser: Model {
     
     func makeNode(context: Context) throws -> Node {
         return try Node(node: [
-            Keys.LehiUserID: id,
+            Keys.lehiUserID: id,
             Keys.givenName: givenName.value,
             Keys.surname: surname.value,
             Keys.username: username.value,
@@ -67,11 +67,18 @@ final class LehiUser: Model {
     }
     
     static func prepare(_ database: Database) throws {
-        
+        try database.create(Keys.lehiUserDatabase) { users in
+            users.id()
+            users.string(Keys.givenName)
+            users.string(Keys.surname)
+            users.string(Keys.username)
+            users.string(Keys.password)
+            users.string(Keys.imagePath)
+        }
     }
     
     static func revert(_ database: Database) throws {
-        
+        try database.delete(Keys.lehiUserDatabase)
     }
     
 }
