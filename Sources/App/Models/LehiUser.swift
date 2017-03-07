@@ -30,7 +30,7 @@ final class LehiUser: Model {
         self.username = try username.validated()
         let validatedPassword: Valid<PasswordValidator> = try rawPassword.validated()
         self.password = BCrypt.hash(password: validatedPassword.value)
-        self.imagePath = imagePath
+        self.imagePath = imagePath ?? ""
     }
     
     // MARK: - NodeInitializable
