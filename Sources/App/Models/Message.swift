@@ -66,3 +66,11 @@ extension Message: ResponseRepresentable {
         return response
     }
 }
+
+extension Sequence where Iterator.Element == Message {
+    func makeResponse() throws -> Response {
+        let response = Response()
+        response.messages = Array(self)
+        return response
+    }
+}

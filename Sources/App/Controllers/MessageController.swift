@@ -11,8 +11,7 @@ final class MessageController {
     // MARK: - Get Routes
     
     func fetchMessages(request: Request) throws -> ResponseRepresentable {
-        let messagesNode = try Message.all().makeNode()
-        return try JSON(node: messagesNode)
+        return try Message.all().makeResponse()
     }
     
     // MARK: - Post Routes
