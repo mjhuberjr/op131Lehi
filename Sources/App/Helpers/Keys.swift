@@ -4,7 +4,7 @@ enum Keys {
     
     // MARK: - LehiUser Keys
     
-    static let lehiUserDatabase = "LehiUserDatabase"
+    static let lehiUserDatabase = "lehiusers"
     static let lehiUserID = "LehiUserID"
     static let givenName = "givenName"
     static let surname = "surname"
