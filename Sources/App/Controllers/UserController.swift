@@ -26,14 +26,9 @@ final class UserController {
     
     func register(request: Request) throws -> ResponseRepresentable {
         
-        guard let givenName = request.data[Keys.givenName]?.string,
-            let surname = request.data[Keys.surname]?.string,
-            let username = request.data[Keys.username]?.string,
-            let password = request.data[Keys.password]?.string else {
-                return "Missing information from the post"
-        }
+        let user = try request.user()
         
-        _ = try LehiUser.register(givenName: givenName, surname: surname, username: username, rawPassword: password)
+        _ = try LehiUser.register(givenName: user.givenName.value, surname: user.surname.value, username: user.username.value, rawPassword: user.password)
         return Response(redirect: "/")
 
     }
