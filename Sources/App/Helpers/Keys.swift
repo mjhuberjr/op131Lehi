@@ -15,6 +15,8 @@ enum Keys {
     // MARK: - Message Keys
     
     static let messageDatabase = "messages"
+    static let messageStorage = "message"
+    static let messagesStorage = "messages"
     static let messageID = "id"
     static let text = "text"
     static let messageUserID = "user_id"

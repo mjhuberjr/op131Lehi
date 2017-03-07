@@ -9,14 +9,14 @@ final class UserController {
         op131Lehi.post("register", handler: register)
     }
     
-    // MARK: - User Routes
+    // MARK: - Get Routes
     
     func fetchUsers(request: Request) throws -> ResponseRepresentable {
         let usersNode = try LehiUser.all().makeNode()
         return try JSON(node: usersNode)
     }
     
-    // MARK: - Register User
+    // MARK: - Post User
     
     func register(request: Request) throws -> ResponseRepresentable {
         

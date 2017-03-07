@@ -1,4 +1,5 @@
 import Vapor
+import HTTP
 
 final class Message: Model {
     
@@ -53,4 +54,15 @@ final class Message: Model {
         try database.delete(Keys.messageDatabase)
     }
     
+}
+
+// MARK: - Response Representable
+
+extension Message: ResponseRepresentable {
+    func makeResponse() throws -> Response {
+        let response = Response()
+        response.message = self
+        
+        return response
+    }
 }
