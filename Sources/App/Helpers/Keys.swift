@@ -12,4 +12,11 @@ enum Keys {
     static let password = "password"
     static let imagePath = "imagePath"
     
+    // MARK: - Message Keys
+    
+    static let messageDatabase = "messages"
+    static let messageID = "id"
+    static let text = "text"
+    static let messageUserID = "user_id"
+    
 }
