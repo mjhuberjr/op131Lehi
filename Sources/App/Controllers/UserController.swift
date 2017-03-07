@@ -13,8 +13,7 @@ final class UserController {
     // MARK: - Get Routes
     
     func fetchUsers(request: Request) throws -> ResponseRepresentable {
-        let usersNode = try LehiUser.all().makeNode()
-        return try JSON(node: usersNode)
+        return try LehiUser.all().makeResponse()
     }
     
     // MARK: - Post User

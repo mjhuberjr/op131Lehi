@@ -1,4 +1,5 @@
 import Vapor
+import HTTP
 import Turnstile
 import TurnstileCrypto
 
@@ -100,4 +101,31 @@ final class LehiUser: Model {
         }
     }
     
+}
+
+// MARK: - Response Representable
+
+extension LehiUser: ResponseRepresentable {
+    func makeResponse() throws -> Response {
+        let json = try JSON(node: [
+            Keys.lehiUserID: id,
+            Keys.givenName: givenName.value,
+            Keys.surname: surname.value,
+            Keys.username: username.value,
+            Keys.password: password,
+            Keys.imagePath: imagePath
+            ])
+        
+        return try json.makeResponse()
+    }
+}
+
+extension Sequence where Iterator.Element == LehiUser {
+    func makeResponse() throws -> Response {
+        let usersArray = Array(self)
+        let nodeArray = try usersArray.makeNode()
+        let json = try nodeArray.converted(to: JSON.self)
+        
+        return try json.makeResponse()
+    }
 }
