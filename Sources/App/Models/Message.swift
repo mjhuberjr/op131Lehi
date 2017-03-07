@@ -1,5 +1,6 @@
 import Vapor
 import HTTP
+import Fluent
 
 final class Message: Model {
     
@@ -11,11 +12,12 @@ final class Message: Model {
     // MARK: - Properties
     
     var userID: Node?
+    var author: LehiUser? = nil
     var text: String
 
     // MARK: - Initializers
     
-    init(text: String, userID: Node? = nil) {
+    init(text: String, userID: Node? = nil) throws {
         self.id = nil
         self.text = text
         self.userID = userID
@@ -28,6 +30,8 @@ final class Message: Model {
         
         userID = try node.extract(Keys.messageUserID)
         text = try node.extract(Keys.text)
+        
+        author = try getAuthor().get()
     }
     
     // MARK: - NodeRepresentable
@@ -36,6 +40,7 @@ final class Message: Model {
         return try Node(node: [
             Keys.messageID: id,
             Keys.messageUserID: userID,
+            Keys.author: author,
             Keys.text: text
             ])
     }
@@ -56,6 +61,14 @@ final class Message: Model {
     
 }
 
+// MARK: - Return Author
+
+extension Message {
+    func getAuthor() throws -> Parent<LehiUser> {
+        return try parent(userID)
+    }
+}
+
 // MARK: - Response Representable
 
 extension Message: ResponseRepresentable {
@@ -63,6 +76,7 @@ extension Message: ResponseRepresentable {
         let json = try JSON(node: [
             Keys.messageID: id,
             Keys.messageUserID: userID,
+            Keys.author: author,
             Keys.text: text
             ])
         
