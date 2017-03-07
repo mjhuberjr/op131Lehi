@@ -7,6 +7,8 @@ final class MessageController {
         let op131Lehi = drop.grouped("op131Lehi/messages")
         op131Lehi.get("/", handler: fetchMessages)
         op131Lehi.get("/", Message.self, handler: fetchMessage)
+        
+        op131Lehi.post("/", handler: postMessage)
     }
     
     // MARK: - Get Routes

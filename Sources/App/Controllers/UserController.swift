@@ -6,6 +6,7 @@ final class UserController {
     func addRoutes(drop: Droplet) {
         let op131Lehi = drop.grouped("op131Lehi/users")
         op131Lehi.get("/", handler: fetchUsers)
+        
         op131Lehi.post("register", handler: register)
     }
     

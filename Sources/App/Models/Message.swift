@@ -46,7 +46,7 @@ final class Message: Model {
         try database.create(Keys.messageDatabase) { messages in
             messages.id()
             messages.parent(LehiUser.self, optional: false)
-            messages.string("messages")
+            messages.string(Keys.text)
         }
     }
     
@@ -60,17 +60,22 @@ final class Message: Model {
 
 extension Message: ResponseRepresentable {
     func makeResponse() throws -> Response {
-        let response = Response()
-        response.message = self
+        let json = try JSON(node: [
+            Keys.messageID: id,
+            Keys.messageUserID: userID,
+            Keys.text: text
+            ])
         
-        return response
+        return try json.makeResponse()
     }
 }
 
 extension Sequence where Iterator.Element == Message {
     func makeResponse() throws -> Response {
-        let response = Response()
-        response.messages = Array(self)
-        return response
+        let messagesArray = Array(self)
+        let nodeArray = try messagesArray.makeNode()
+        let json = try nodeArray.converted(to: JSON.self)
+        
+        return try json.makeResponse()
     }
 }
