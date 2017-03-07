@@ -20,4 +20,37 @@ final class Message: Model {
         self.userID = userID
     }
     
+    // MARK: - NodeInitializable
+    
+    init(node: Node, in context: Context) throws {
+        id = try node.extract(Keys.messageID)
+        
+        userID = try node.extract(Keys.messageUserID)
+        text = try node.extract(Keys.text)
+    }
+    
+    // MARK: - NodeRepresentable
+    
+    func makeNode(context: Context) throws -> Node {
+        return try Node(node: [
+            Keys.messageID: id,
+            Keys.messageUserID: userID,
+            Keys.text: text
+            ])
+    }
+    
+    // MARK: - Preparation
+    
+    static func prepare(_ database: Database) throws {
+        try database.create(Keys.messageDatabase) { messages in
+            messages.id()
+            messages.parent(LehiUser.self, optional: false)
+            messages.string("messages")
+        }
+    }
+    
+    static func revert(_ database: Database) throws {
+        try database.delete(Keys.messageDatabase)
+    }
+    
 }
