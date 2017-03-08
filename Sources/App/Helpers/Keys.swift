@@ -19,5 +19,7 @@ enum Keys {
     static let text = "text"
     static let messageUserID = "lehiuser_id"
     static let author = "author"
+    static let messageParentID = "message_id"
+    static let replies = "replies"
     
 }

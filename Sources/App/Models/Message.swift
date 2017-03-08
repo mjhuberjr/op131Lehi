@@ -14,13 +14,17 @@ final class Message: Model {
     var userID: Node?
     var author: LehiUser? = nil
     var text: String
+    
+    var messageParentID: Node?
+    var replies: [Message]?
 
     // MARK: - Initializers
     
-    init(text: String, userID: Node? = nil) throws {
+    init(text: String, userID: Node? = nil, messageParentID: Node? = nil) throws {
         self.id = nil
         self.text = text
         self.userID = userID
+        self.messageParentID = messageParentID
     }
     
     // MARK: - NodeInitializable
@@ -31,7 +35,7 @@ final class Message: Model {
         userID = try node.extract(Keys.messageUserID)
         text = try node.extract(Keys.text)
         
-        author = try getAuthor().get()
+        messageParentID = try node.extract(Keys.messageParentID)
     }
     
     // MARK: - NodeRepresentable
@@ -40,8 +44,8 @@ final class Message: Model {
         return try Node(node: [
             Keys.messageID: id,
             Keys.messageUserID: userID,
-            Keys.author: author,
-            Keys.text: text
+            Keys.text: text,
+            Keys.messageParentID: messageParentID
             ])
     }
     
@@ -52,6 +56,7 @@ final class Message: Model {
             messages.id()
             messages.parent(LehiUser.self, optional: false)
             messages.string(Keys.text)
+            messages.parent(Message.self, optional: true)
         }
     }
     
@@ -61,11 +66,15 @@ final class Message: Model {
     
 }
 
-// MARK: - Return Author
+// MARK: - Relationship Methods
 
 extension Message {
     func getAuthor() throws -> Parent<LehiUser> {
         return try parent(userID)
+    }
+    
+    func getReplies() throws -> [Message] {
+        return try children(nil, Message.self).all()
     }
 }
 
@@ -73,11 +82,16 @@ extension Message {
 
 extension Message: ResponseRepresentable {
     func makeResponse() throws -> Response {
+        author = try getAuthor().get()
+        replies = try getReplies()
+        
         let json = try JSON(node: [
             Keys.messageID: id,
             Keys.messageUserID: userID,
             Keys.author: author,
-            Keys.text: text
+            Keys.text: text,
+            Keys.messageParentID: messageParentID,
+            Keys.replies: replies?.makeNode()
             ])
         
         return try json.makeResponse()
