@@ -109,8 +109,25 @@ extension Message: ResponseRepresentable {
 extension Sequence where Iterator.Element == Message {
     func makeResponse() throws -> Response {
         let messagesArray = Array(self)
-        let nodeArray = try messagesArray.makeNode()
-        let json = try nodeArray.converted(to: JSON.self)
+        
+        let jsonArray = try messagesArray.map { (message) -> JSON in
+            message.author = try message.getAuthor().get()
+            message.replies = try message.getReplies()
+            
+            let json = try JSON(node: [
+                Keys.messageID: message.id,
+                Keys.messageUserID: message.userID,
+                Keys.author: message.author,
+                Keys.text: message.text,
+                Keys.createdAt: message.createdAt,
+                Keys.messageParentID: message.messageParentID,
+                Keys.replies: message.replies?.makeNode()
+                ])
+            return json
+        }
+        
+        let node = try jsonArray.makeNode()
+        let json = try node.converted(to: JSON.self)
         
         return try json.makeResponse()
     }

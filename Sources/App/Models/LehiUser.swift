@@ -123,8 +123,8 @@ extension LehiUser: ResponseRepresentable {
 extension Sequence where Iterator.Element == LehiUser {
     func makeResponse() throws -> Response {
         let usersArray = Array(self)
-        let nodeArray = try usersArray.makeNode()
-        let json = try nodeArray.converted(to: JSON.self)
+        let node = try usersArray.makeNode()
+        let json = try node.converted(to: JSON.self)
         
         return try json.makeResponse()
     }
