@@ -39,6 +39,7 @@ final class UserController {
 
 extension LehiUser {
     func messages() throws -> [Message] {
-        return try children(nil, Message.self).all()
+        let messages = try children(nil, Message.self).all()
+        return messages.filter { $0.messageParentID == nil }
     }
 }
