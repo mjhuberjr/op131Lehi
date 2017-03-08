@@ -17,6 +17,7 @@ enum Keys {
     static let messageDatabase = "messages"
     static let messageID = "id"
     static let text = "text"
+    static let createdAt = "createdAt"
     static let messageUserID = "lehiuser_id"
     static let author = "author"
     static let messageParentID = "message_id"

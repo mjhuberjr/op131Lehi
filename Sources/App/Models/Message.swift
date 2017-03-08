@@ -2,6 +2,8 @@ import Vapor
 import HTTP
 import Fluent
 
+import Foundation
+
 final class Message: Model {
     
     // MARK: - Conform to Entity
@@ -14,6 +16,7 @@ final class Message: Model {
     var userID: Node?
     var author: LehiUser? = nil
     var text: String
+    var createdAt: String?
     
     var messageParentID: Node?
     var replies: [Message]?
@@ -25,6 +28,7 @@ final class Message: Model {
         self.text = text
         self.userID = userID
         self.messageParentID = messageParentID
+        self.createdAt = Date().current()
     }
     
     // MARK: - NodeInitializable
@@ -34,6 +38,7 @@ final class Message: Model {
         
         userID = try node.extract(Keys.messageUserID)
         text = try node.extract(Keys.text)
+        createdAt = Date().current()
         
         messageParentID = try node.extract(Keys.messageParentID)
     }
@@ -45,6 +50,7 @@ final class Message: Model {
             Keys.messageID: id,
             Keys.messageUserID: userID,
             Keys.text: text,
+            Keys.createdAt: createdAt,
             Keys.messageParentID: messageParentID
             ])
     }
@@ -56,6 +62,7 @@ final class Message: Model {
             messages.id()
             messages.parent(LehiUser.self, optional: false)
             messages.string(Keys.text)
+            messages.string(Keys.createdAt)
             messages.parent(Message.self, optional: true)
         }
     }
@@ -90,6 +97,7 @@ extension Message: ResponseRepresentable {
             Keys.messageUserID: userID,
             Keys.author: author,
             Keys.text: text,
+            Keys.createdAt: createdAt,
             Keys.messageParentID: messageParentID,
             Keys.replies: replies?.makeNode()
             ])
