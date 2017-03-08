@@ -55,6 +55,23 @@ final class Message: Model {
             ])
     }
     
+    // MARK: - JSONRepresentable
+    
+    func makeJSON() throws -> JSON {
+        author = try getAuthor().get()
+        replies = try getReplies()
+        
+        return try JSON(node: [
+            Keys.messageID: id,
+            Keys.messageUserID: userID,
+            Keys.author: author,
+            Keys.text: text,
+            Keys.createdAt: createdAt,
+            Keys.messageParentID: messageParentID,
+            Keys.replies: replies?.makeJSON()
+            ])
+    }
+    
     // MARK: - Preparation
     
     static func prepare(_ database: Database) throws {
@@ -89,18 +106,7 @@ extension Message {
 
 extension Message: ResponseRepresentable {
     func makeResponse() throws -> Response {
-        author = try getAuthor().get()
-        replies = try getReplies()
-        
-        let json = try JSON(node: [
-            Keys.messageID: id,
-            Keys.messageUserID: userID,
-            Keys.author: author,
-            Keys.text: text,
-            Keys.createdAt: createdAt,
-            Keys.messageParentID: messageParentID,
-            Keys.replies: replies?.makeNode()
-            ])
+        let json = try makeJSON()
         
         return try json.makeResponse()
     }
@@ -111,18 +117,8 @@ extension Sequence where Iterator.Element == Message {
         let messagesArray = Array(self)
         
         let jsonArray = try messagesArray.map { (message) -> JSON in
-            message.author = try message.getAuthor().get()
-            message.replies = try message.getReplies()
+            let json = try message.makeJSON()
             
-            let json = try JSON(node: [
-                Keys.messageID: message.id,
-                Keys.messageUserID: message.userID,
-                Keys.author: message.author,
-                Keys.text: message.text,
-                Keys.createdAt: message.createdAt,
-                Keys.messageParentID: message.messageParentID,
-                Keys.replies: message.replies?.makeNode()
-                ])
             return json
         }
         
