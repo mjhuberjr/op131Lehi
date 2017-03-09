@@ -54,3 +54,23 @@ final class Follow: Model {
     }
     
 }
+
+// MARK: - Response Representable
+
+extension Follow: ResponseRepresentable {
+    func makeResponse() throws -> Response {
+        let json = try makeJSON()
+        
+        return try json.makeResponse()
+    }
+}
+
+extension Sequence where Iterator.Element == Follow {
+    func makeResponse() throws -> Response {
+        let followArray = Array(self)
+        let node = try followArray.makeNode()
+        let json = try node.converted(to: JSON.self)
+        
+        return try json.makeResponse()
+    }
+}

@@ -108,14 +108,7 @@ final class LehiUser: Model {
 
 extension LehiUser: ResponseRepresentable {
     func makeResponse() throws -> Response {
-        let json = try JSON(node: [
-            Keys.lehiUserID: id,
-            Keys.givenName: givenName.value,
-            Keys.surname: surname.value,
-            Keys.username: username.value,
-            Keys.password: password,
-            Keys.imagePath: imagePath
-            ])
+        let json = try makeJSON()
         
         return try json.makeResponse()
     }
