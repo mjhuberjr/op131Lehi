@@ -12,8 +12,6 @@ final class LehiUser: Model {
     
     // MARK: - Properties
     
-    var followsID: Node?
-    
     var givenName: Valid<NameValidator>
     var surname: Valid<NameValidator>
     var username: Valid<UsernameValidator>
@@ -54,8 +52,6 @@ final class LehiUser: Model {
         password = passwordString
         
         imagePath = try node.extract(Keys.imagePath) as String
-        
-        followsID = try node.extract(Keys.followsID)
     }
     
     // MARK: - NodeRepresentable

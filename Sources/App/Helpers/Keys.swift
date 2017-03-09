@@ -11,7 +11,6 @@ enum Keys {
     static let username = "username"
     static let password = "password"
     static let imagePath = "imagePath"
-    static let followsID = "followsID"
     
     // MARK: - Message Keys
     
@@ -28,6 +27,7 @@ enum Keys {
     
     static let followDatabase = "follows"
     static let followID = "id"
-    static let followUserID = "followUserID"
+    static let followerUserID = "followerUserID"
+    static let followingUserID = "followingUserID"
     
 }

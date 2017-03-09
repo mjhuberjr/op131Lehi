@@ -10,12 +10,14 @@ final class Follow: Model {
     
     // MARK: - Properties
     
+    var followerUserID: Int
     var followingUserID: Int
     
     // MARK: - Initializers
     
-    init(followingUserID: Int) throws {
+    init(followerUserID: Int, followingUserID: Int) throws {
         self.id = nil
+        self.followerUserID = followerUserID
         self.followingUserID = followingUserID
     }
     
@@ -23,7 +25,8 @@ final class Follow: Model {
     
     init(node: Node, in context: Context) throws {
         id = try node.extract(Keys.followID)
-        followingUserID = try node.extract(Keys.followUserID)
+        followerUserID = try node.extract(Keys.followerUserID)
+        followingUserID = try node.extract(Keys.followingUserID)
     }
 
     // MARK: - NodeRepresentable
@@ -31,7 +34,8 @@ final class Follow: Model {
     func makeNode(context: Context) throws -> Node {
         return try Node(node: [
             Keys.followID: id,
-            Keys.followUserID: followingUserID
+            Keys.followerUserID: followerUserID,
+            Keys.followingUserID: followingUserID
             ])
     }
     
@@ -40,7 +44,8 @@ final class Follow: Model {
     static func prepare(_ database: Database) throws {
         try database.create(Keys.followDatabase) { follows in
             follows.id()
-            follows.int(Keys.followUserID)
+            follows.int(Keys.followerUserID)
+            follows.int(Keys.followingUserID)
         }
     }
         
