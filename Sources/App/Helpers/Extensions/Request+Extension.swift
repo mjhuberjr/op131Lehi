@@ -11,9 +11,4 @@ extension Request {
         guard let json = json else { throw Abort.badRequest }
         return try Message(node: json)
     }
-    
-    func follow() throws -> Follow {
-        guard let json = json else { throw Abort.badRequest }
-        return try Follow(node: json)
-    }
 }

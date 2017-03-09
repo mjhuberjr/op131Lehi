@@ -17,14 +17,18 @@ final class FollowController {
         let followUserID = try request.parameters.extract(Keys.followUserID) as Int
         let follows = try Follow.query().filter(Keys.followUserID, followUserID).all()
         
-        return try follows.makeResponse()
+        let users = try follows.flatMap { try LehiUser.find($0.followingUserID) }
+        
+        return try users.makeResponse()
     }
     
     func fetchFollowers(request: Request) throws -> ResponseRepresentable {
         let followUserID = try request.parameters.extract(Keys.followUserID) as Int
         let followers = try Follow.query().filter(Keys.followingUserID, followUserID).all()
         
-        return try followers.makeResponse()
+        let users = try followers.flatMap { try LehiUser.find($0.followUserID) }
+        
+        return try users.makeResponse()
     }
     
     // MARK: - Post Routes
@@ -32,6 +36,8 @@ final class FollowController {
     func followUser(request: Request) throws -> ResponseRepresentable {
         let followUserID = try request.parameters.extract("followUserID") as Int
         let followingUserID = try request.parameters.extract("followingUserID") as Int
+        
+        // TODO: - Need to check if you are already following that user so you don't follow them twice!
         
         var follow = try Follow(followUserID: followUserID, followingUserID: followingUserID)
         try follow.save()
