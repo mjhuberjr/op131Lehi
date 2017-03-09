@@ -27,7 +27,7 @@ enum Keys {
     
     static let followDatabase = "follows"
     static let followID = "id"
-    static let followerUserID = "followerUserID"
+    static let followUserID = "followUserID"
     static let followingUserID = "followingUserID"
     
 }
