@@ -26,9 +26,22 @@ final class UserController {
     
     func register(request: Request) throws -> ResponseRepresentable {
         
-        let user = try request.user()
+        if let user = try request.user() {
+            _ = try LehiUser.register(givenName: user.givenName.value, surname: user.surname.value, username: user.username.value, rawPassword: user.password)
+        } else if let userWithImage = try request.userWithImage() {
+            if let imageName = request.formData?["image"]?.filename,
+                let imageBytes = request.formData?["image"]?.part.body {
+                
+                userWithImage.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
+                
+                _ = try LehiUser.register(givenName: userWithImage.givenName.value,
+                                          surname: userWithImage.surname.value,
+                                          username: userWithImage.username.value,
+                                          rawPassword: userWithImage.password,
+                                          imagePath: userWithImage.imagePath)
+            }
+        }
         
-        _ = try LehiUser.register(givenName: user.givenName.value, surname: user.surname.value, username: user.username.value, rawPassword: user.password)
         return Response(redirect: "/")
 
     }
