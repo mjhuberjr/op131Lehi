@@ -37,12 +37,22 @@ final class FollowController {
         let followUserID = try request.parameters.extract("followUserID") as Int
         let followingUserID = try request.parameters.extract("followingUserID") as Int
         
-        // TODO: - Need to check if you are already following that user so you don't follow them twice!
+        if followUserID == followingUserID {
+            throw FollowSelfError()
+        }
         
+        
+        let followers = try Follow.query().filter(Keys.followUserID, followUserID).all()
         var follow = try Follow(followUserID: followUserID, followingUserID: followingUserID)
-        try follow.save()
         
-        return Response(redirect: "/")
+        let isFollowing = followers.filter { $0.followingUserID == follow.followingUserID }
+        
+        if isFollowing.isEmpty {
+            try follow.save()
+            return Response(redirect: "/")
+        } else {
+            throw AlreadyFollowingError()
+        }
     }
     
 }
