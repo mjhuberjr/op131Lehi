@@ -23,4 +23,10 @@ enum Keys {
     static let messageParentID = "message_id"
     static let replies = "replies"
     
+    // MARK: - Follow Keys
+    
+    static let followDatabase = "follows"
+    static let followID = "id"
+    static let followUserID = "followUserID"
+    
 }
