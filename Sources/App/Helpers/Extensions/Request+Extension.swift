@@ -8,13 +8,22 @@ extension Request {
     }
     
     func userWithImage() throws -> LehiUser? {
-        guard let userData = formData,
-            let givenName = userData[Keys.givenName]?.string,
+        guard let userData = formData else { throw Abort.badRequest }
+        guard let givenName = userData[Keys.givenName]?.string,
             let surname = userData[Keys.surname]?.string,
             let username = userData[Keys.username]?.string,
-            let password = userData[Keys.password]?.string else { throw Abort.badRequest }
+            let password = userData[Keys.password]?.string,
+            let imagePath = userData[Keys.imagePath]?.string else { throw Abort.badRequest }
         
-        return try LehiUser(givenName: givenName, surname: surname, username: username, rawPassword: password)
+        let json = try JSON(node: [
+            Keys.givenName: givenName,
+            Keys.surname: surname,
+            Keys.username: username,
+            Keys.password: password,
+            Keys.imagePath: imagePath
+            ])
+        
+        return try LehiUser(node: json)
     }
     
     func message() throws -> Message {
