@@ -9,6 +9,8 @@ final class MessageController {
         op131Lehi.get("/", Message.self, handler: fetchMessage)
         
         op131Lehi.post("/", handler: postMessage)
+        
+        op131Lehi.delete("/", Message.self, handler: deleteMessage)
     }
     
     // MARK: - Get Routes
@@ -26,6 +28,13 @@ final class MessageController {
     func postMessage(request: Request) throws -> ResponseRepresentable {
         var message = try request.message()
         try message.save()
+        return Response(redirect: "/")
+    }
+    
+    // MARK: - Delete Routes
+    
+    func deleteMessage(request: Request, message: Message) throws -> ResponseRepresentable {
+        try message.delete()
         return Response(redirect: "/")
     }
     

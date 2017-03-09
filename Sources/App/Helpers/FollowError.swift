@@ -1,7 +1,7 @@
 /**
  A follow error is related to forming an incorrect relationship to another user.
  */
-protocol FollowError: Error { }
+protocol FollowError: Error, CustomStringConvertible { }
 
 
 /**
