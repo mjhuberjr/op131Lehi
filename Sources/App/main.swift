@@ -7,6 +7,7 @@ let drop = Droplet()
 try drop.addProvider(VaporMySQL.Provider)
 drop.preparations += LehiUser.self
 drop.preparations += Message.self
+drop.preparations += Follow.self
 
 // MARK: - Setup Routes
 
@@ -15,5 +16,8 @@ userController.addRoutes(drop: drop)
 
 let messageController = MessageController()
 messageController.addRoutes(drop: drop)
+
+let followController = FollowController()
+followController.addRoutes(drop: drop)
 
 drop.run()

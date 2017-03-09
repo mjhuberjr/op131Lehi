@@ -17,7 +17,7 @@ final class Follow: Model {
     
     init(followUserID: Int, followingUserID: Int) throws {
         self.id = nil
-        self.followerUserID = followerUserID
+        self.followUserID = followUserID
         self.followingUserID = followingUserID
     }
     
@@ -34,7 +34,7 @@ final class Follow: Model {
     func makeNode(context: Context) throws -> Node {
         return try Node(node: [
             Keys.followID: id,
-            Keys.followerUserID: followUserID,
+            Keys.followUserID: followUserID,
             Keys.followingUserID: followingUserID
             ])
     }
