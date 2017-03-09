@@ -9,6 +9,8 @@ final class FollowController {
         op131Lehi.get(":followUserID", "followers", handler: fetchFollowers)
         
         op131Lehi.post(":followUserID", "follows", ":followingUserID", handler: followUser)
+        
+        op131Lehi.delete(":followUserID", "unfollows", ":followingUserID", handler: unfollowUser)
     }
     
     // MARK: - Get Routes
@@ -53,6 +55,27 @@ final class FollowController {
         } else {
             throw AlreadyFollowingError()
         }
+    }
+    
+    // MARK: - Delete Routes
+    
+    func unfollowUser(request: Request) throws -> ResponseRepresentable {
+        let followUserID = try request.parameters.extract("followUserID") as Int
+        let followingUserID = try request.parameters.extract("followingUserID") as Int
+        
+        if followUserID == followingUserID {
+            throw UnFollowSelfError()
+        }
+        
+        
+        let followers = try Follow.query().filter(Keys.followUserID, followUserID).all()
+        let follow = try Follow(followUserID: followUserID, followingUserID: followingUserID)
+        
+        let isFollowing = followers.filter { $0.followingUserID == follow.followingUserID }
+        
+        guard let followID = isFollowing.first?.id else { throw NotFollowingError() }
+        try Follow.find(followID)?.delete()
+        return Response(redirect: "/")
     }
     
 }

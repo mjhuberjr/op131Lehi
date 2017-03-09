@@ -22,3 +22,20 @@ struct AlreadyFollowingError: FollowError {
     let description = "You are already following this user."
 }
 
+/**
+ UnFollowSelfError represents an error when the user tries to unfollow themself.
+ */
+struct UnFollowSelfError: FollowError {
+    init() {}
+    
+    let description = "You cannot unfollow yourself."
+}
+
+/**
+ NotFollowingError represents an error when the user tries to unfollow a user they are not following.
+ */
+struct NotFollowingError: FollowError {
+    init() {}
+    
+    let description = "You are not following this user."
+}
