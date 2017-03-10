@@ -1,5 +1,6 @@
 import Vapor
 import HTTP
+import Turnstile
 
 final class UserController {
     
@@ -9,6 +10,7 @@ final class UserController {
         op131Lehi.get("/", LehiUser.self, handler: fetchMessagesByUser)
         
         op131Lehi.post("register", handler: register)
+        op131Lehi.post("login", handler: login)
         op131Lehi.post("/", LehiUser.self, handler: updateProfile)
     }
     
@@ -51,6 +53,21 @@ final class UserController {
         
         throw Abort.badRequest
 
+    }
+    
+    func login(request: Request) throws -> ResponseRepresentable {
+        
+        guard let username = request.json?[Keys.username]?.string else { throw BlankUsername() }
+        guard let password = request.json?[Keys.password]?.string else { throw BlankPassword() }
+        
+        let credentials = UsernamePassword(username: username, password: password)
+        do {
+            try request.auth.login(credentials)
+            return Response(redirect: "/")
+        } catch let error as TurnstileError {
+            return error.description
+        }
+        
     }
     
     func updateProfile(request: Request, profile: LehiUser) throws -> ResponseRepresentable {
