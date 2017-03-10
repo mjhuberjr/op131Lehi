@@ -9,6 +9,7 @@ final class UserController {
         op131Lehi.get("/", LehiUser.self, handler: fetchMessagesByUser)
         
         op131Lehi.post("register", handler: register)
+        op131Lehi.post("/", LehiUser.self, handler: updateProfile)
     }
     
     // MARK: - Get Routes

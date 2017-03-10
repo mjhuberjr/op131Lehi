@@ -2,8 +2,9 @@ import Vapor
 import HTTP
 import Turnstile
 import TurnstileCrypto
+import Auth
 
-final class LehiUser: Model {
+final class LehiUser: User, Model {
     
     // MARK: - Conform to Entity
     
@@ -124,5 +125,39 @@ extension Sequence where Iterator.Element == LehiUser {
         let json = try node.converted(to: JSON.self)
         
         return try json.makeResponse()
+    }
+}
+
+// MARK: - User Authentication
+
+extension LehiUser: Authenticator {
+    static func authenticate(credentials: Credentials) throws -> User {
+        
+        var user: LehiUser?
+        
+        switch credentials {
+        case let credentials as UsernamePassword:
+            let fetchedUser = try LehiUser.query().filter("username", credentials.username).first()
+            
+            if let password = fetchedUser?.password, password != "",
+                (try? BCrypt.verify(password: credentials.password, matchesHash: password)) == true {
+                
+                user = fetchedUser
+            }
+        case let credentials as Identifier:
+            user = try LehiUser.find(credentials.id)
+        default: throw UnsupportedCredentialsError()
+        }
+        
+        if let user = user {
+            return user
+        } else {
+            throw IncorrectCredentialsError()
+        }
+        
+    }
+    
+    static func register(credentials: Credentials) throws -> User {
+        throw Abort.badRequest
     }
 }
