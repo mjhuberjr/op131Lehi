@@ -23,9 +23,8 @@ final class UserController {
     }
     
     // MARK: - Post User
-
+    
     func register(request: Request) throws -> ResponseRepresentable {
-        
         if request.headers["Content-Type"] == "application/json" {
             if let user = try request.user() {
                 _ = try LehiUser.register(givenName: user.givenName.value,
@@ -33,7 +32,7 @@ final class UserController {
                                           username: user.username.value,
                                           rawPassword: user.password)
             }
-        } else if request.headers["Content-Type"] == "multipart/form-data" {
+        } else if let _ = request.headers["Content-Type"]?.contains("multipart/form-data") {
             if let userWithImage = try request.userWithImage() {
                 if let imageName = request.formData?[Keys.image]?.filename,
                     let imageBytes = request.formData?[Keys.image]?.part.body {
