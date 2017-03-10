@@ -17,6 +17,7 @@ final class MessageController {
     // MARK: - Get Routes
     
     func fetchMessages(request: Request) throws -> ResponseRepresentable {
+        _ = try? request.auth.user() as! LehiUser
         return try Message.all().makeResponse()
     }
     

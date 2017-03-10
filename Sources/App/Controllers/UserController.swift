@@ -8,6 +8,7 @@ final class UserController {
         let op131Lehi = drop.grouped("op131Lehi/users")
         op131Lehi.get("/", handler: fetchUsers)
         op131Lehi.get("/", LehiUser.self, handler: fetchMessagesByUser)
+        op131Lehi.get("logout", handler: logout)
         
         op131Lehi.post("register", handler: register)
         op131Lehi.post("login", handler: login)
@@ -25,7 +26,14 @@ final class UserController {
         return try messages.makeResponse()
     }
     
+    func logout(request: Request) throws -> ResponseRepresentable {
+        try request.auth.logout()
+        return Response(redirect: "/")
+    }
+    
     // MARK: - Post User
+    
+    // TODO: Refactor, a lot of similar code
     
     func register(request: Request) throws -> ResponseRepresentable {
         if request.headers["Content-Type"] == "application/json" {
@@ -34,6 +42,9 @@ final class UserController {
                                           surname: user.surname.value,
                                           username: user.username.value,
                                           rawPassword: user.password)
+                
+                let credentials = UsernamePassword(username: user.username.value, password: user.password)
+                try request.auth.login(credentials)
             }
         } else if let _ = request.headers["Content-Type"]?.contains("multipart/form-data") {
             if let userWithImage = try request.userWithImage() {
@@ -48,10 +59,13 @@ final class UserController {
                                               rawPassword: userWithImage.password,
                                               imageName: imageName,
                                               imageBytes: imageBytes)
+                
+                let credentials = UsernamePassword(username: userWithImage.username.value, password: userWithImage.password)
+                try request.auth.login(credentials)
             }
         }
         
-        throw Abort.badRequest
+        return Response(redirect: "/")
 
     }
     
