@@ -31,6 +31,19 @@ final class MessageController {
         return Response(redirect: "/")
     }
     
+    func updateMessage(request: Request, message: Message) throws -> ResponseRepresentable {
+        
+        let newMessage = try request.message()
+        
+        var message = message
+        message.text = newMessage.text
+        
+        try message.save()
+        
+        return Response(redirect: "/")
+        
+    }
+    
     // MARK: - Delete Routes
     
     func deleteMessage(request: Request, message: Message) throws -> ResponseRepresentable {
