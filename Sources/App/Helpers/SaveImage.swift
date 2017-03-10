@@ -9,8 +9,9 @@ struct SaveImage {
     }
     
     
-    static func save(imageName: String?, image: Bytes) throws -> String {
-        guard let imageName = imageName else { throw Abort.badRequest }
+    static func save(imageName: String?, image: Bytes?) throws -> String {
+        guard let imageName = imageName,
+            let image = image else { throw Abort.badRequest }
         let result = SaveImage.imagePath(imageName: imageName)
         FileManager.default.createFile(atPath: result.savePath, contents: Data(bytes: image), attributes: nil)
         return result.imagePath

@@ -91,10 +91,13 @@ final class LehiUser: Model {
                          surname: String,
                          username: String,
                          rawPassword: String,
+                         imageName: String? = nil,
+                         imageBytes: Bytes? = nil,
                          imagePath: String? = nil) throws -> LehiUser {
         
         var newUser = try LehiUser(givenName: givenName, surname: surname, username: username, rawPassword: rawPassword, imagePath: imagePath)
         if try LehiUser.query().filter(Keys.username, newUser.username.value).first() == nil {
+            newUser.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
             try newUser.save()
             return newUser
         } else {

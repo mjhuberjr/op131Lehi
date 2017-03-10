@@ -34,17 +34,17 @@ final class UserController {
             }
         } else if let _ = request.headers["Content-Type"]?.contains("multipart/form-data") {
             if let userWithImage = try request.userWithImage() {
-                if let imageName = request.formData?[Keys.image]?.filename,
-                    let imageBytes = request.formData?[Keys.image]?.part.body {
-                    
-                    userWithImage.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
-                    
+                guard let imageName = request.formData?[Keys.image]?.filename,
+                    let imageBytes = request.formData?[Keys.image]?.part.body else {
+                        throw Abort.badRequest
+                }
+                
                     _ = try LehiUser.register(givenName: userWithImage.givenName.value,
                                               surname: userWithImage.surname.value,
                                               username: userWithImage.username.value,
                                               rawPassword: userWithImage.password,
-                                              imagePath: userWithImage.imagePath)
-                }
+                                              imageName: imageName,
+                                              imageBytes: imageBytes)
             }
         }
         
