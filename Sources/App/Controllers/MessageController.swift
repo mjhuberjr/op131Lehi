@@ -9,6 +9,7 @@ final class MessageController {
         op131Lehi.get("/", Message.self, handler: fetchMessage)
         
         op131Lehi.post("/", handler: postMessage)
+        op131Lehi.post("/", Message.self, handler: updateMessage)
         
         op131Lehi.delete("/", Message.self, handler: deleteMessage)
     }

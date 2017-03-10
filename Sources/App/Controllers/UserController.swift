@@ -48,8 +48,49 @@ final class UserController {
             }
         }
         
-        return Response(redirect: "/")
+        throw Abort.badRequest
 
+    }
+    
+    func updateProfile(request: Request, profile: LehiUser) throws -> ResponseRepresentable {
+        
+        if request.headers["Content-Type"] == "application/json" {
+            
+            guard let user = try request.user() else { throw Abort.badRequest }
+            
+            var profile = profile
+            profile.givenName = try user.givenName.value.validated()
+            profile.surname =  try user.surname.value.validated()
+            
+            // TODO: Eventually add ability to change password.
+            
+            try profile.save()
+            
+            return Response(redirect: "/")
+            
+        } else if let _ = request.headers["Content-Type"]?.contains("multipart/form-data") {
+            
+            guard let userWithImage = try request.userWithImage(),
+                let imageName = request.formData?[Keys.image]?.filename,
+                let imageBytes = request.formData?[Keys.image]?.part.body else {
+                    throw Abort.badRequest
+            }
+            
+            var profile = profile
+            
+            profile.givenName = try userWithImage.givenName.value.validated()
+            profile.surname = try userWithImage.surname.value.validated()
+            try SaveImage.removeImage(for: profile.imagePath)
+            profile.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
+            
+            try profile.save()
+            
+            return Response(redirect: "/")
+            
+        }
+        
+        throw Abort.badRequest
+        
     }
     
 }
