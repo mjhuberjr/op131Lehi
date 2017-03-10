@@ -1,10 +1,14 @@
 import Vapor
 import HTTP
+import Auth
 
 final class FollowController {
     
     func addRoutes(drop: Droplet) {
-        let op131Lehi = drop.grouped("op131Lehi/users")
+        let error = Abort.custom(status: .forbidden, message: "Invalid credentials.")
+        let protect = ProtectMiddleware(error: error)
+        
+        let op131Lehi = drop.grouped(protect).grouped("op131Lehi/users")
         op131Lehi.get(":followUserID", "follows", handler: fetchFollowing)
         op131Lehi.get(":followUserID", "followers", handler: fetchFollowers)
         

@@ -1,11 +1,15 @@
 import Vapor
 import HTTP
+import Auth
 import Turnstile
 
 final class MessageController {
     
     func addRoutes(drop: Droplet) {
-        let op131Lehi = drop.grouped("op131Lehi/messages")
+        let error = Abort.custom(status: .forbidden, message: "Invalid credentials.")
+        let protect = ProtectMiddleware(error: error)
+        
+        let op131Lehi = drop.grouped(protect).grouped("op131Lehi/messages")
         op131Lehi.get("/", handler: fetchMessages)
         op131Lehi.get("/", Message.self, handler: fetchMessage)
         
@@ -18,11 +22,7 @@ final class MessageController {
     // MARK: - Get Routes
     
     func fetchMessages(request: Request) throws -> ResponseRepresentable {
-        if let _ = try? request.auth.user() as! LehiUser {
-            return try Message.all().makeResponse()
-        } else {
-            throw InvalidSessionError()
-        }
+        return try Message.all().makeResponse()
     }
     
     func fetchMessage(request: Request, message: Message) throws -> ResponseRepresentable {

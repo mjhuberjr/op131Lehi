@@ -1,18 +1,26 @@
 import Vapor
 import HTTP
+import Auth
 import Turnstile
 
 final class UserController {
     
     func addRoutes(drop: Droplet) {
         let op131Lehi = drop.grouped("op131Lehi/users")
-        op131Lehi.get("/", handler: fetchUsers)
-        op131Lehi.get("/", LehiUser.self, handler: fetchMessagesByUser)
-        op131Lehi.get("logout", handler: logout)
-        
         op131Lehi.post("register", handler: register)
         op131Lehi.post("login", handler: login)
-        op131Lehi.post("/", LehiUser.self, handler: updateProfile)
+        
+        // MARK: - Protected Routes
+        
+        let error = Abort.custom(status: .forbidden, message: "Invalid credentials.")
+        let protect = ProtectMiddleware(error: error)
+        
+        let op131LehiProtected = drop.grouped(protect).grouped("op131Lehi/users")
+        op131LehiProtected.get("/", handler: fetchUsers)
+        op131LehiProtected.get("/", LehiUser.self, handler: fetchMessagesByUser)
+        op131LehiProtected.get("logout", handler: logout)
+        
+        op131LehiProtected.post("/", LehiUser.self, handler: updateProfile)
     }
     
     // MARK: - Get Routes
