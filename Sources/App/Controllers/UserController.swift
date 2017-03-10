@@ -23,27 +23,32 @@ final class UserController {
     }
     
     // MARK: - Post User
-    
+
     func register(request: Request) throws -> ResponseRepresentable {
         
-        if let userWithImage = try request.userWithImage() {
-            if let imageName = request.formData?[Keys.image]?.filename,
-                let imageBytes = request.formData?[Keys.image]?.part.body {
-                
-                userWithImage.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
-                
-                _ = try LehiUser.register(givenName: userWithImage.givenName.value,
-                                          surname: userWithImage.surname.value,
-                                          username: userWithImage.username.value,
-                                          rawPassword: userWithImage.password,
-                                          imagePath: userWithImage.imagePath)
+        if request.headers["Content-Type"] == "application/json" {
+            if let user = try request.user() {
+                _ = try LehiUser.register(givenName: user.givenName.value,
+                                          surname: user.surname.value,
+                                          username: user.username.value,
+                                          rawPassword: user.password)
+            }
+        } else if request.headers["Content-Type"] == "multipart/form-data" {
+            if let userWithImage = try request.userWithImage() {
+                if let imageName = request.formData?[Keys.image]?.filename,
+                    let imageBytes = request.formData?[Keys.image]?.part.body {
+                    
+                    userWithImage.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
+                    
+                    _ = try LehiUser.register(givenName: userWithImage.givenName.value,
+                                              surname: userWithImage.surname.value,
+                                              username: userWithImage.username.value,
+                                              rawPassword: userWithImage.password,
+                                              imagePath: userWithImage.imagePath)
+                }
             }
         }
         
-//        if let user = try request.user() {
-//            _ = try LehiUser.register(givenName: user.givenName.value, surname: user.surname.value, username: user.username.value, rawPassword: user.password)
-//        }
-    
         return Response(redirect: "/")
 
     }
