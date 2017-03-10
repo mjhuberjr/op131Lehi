@@ -1,5 +1,6 @@
 import Vapor
 import HTTP
+import Turnstile
 
 final class MessageController {
     
@@ -17,8 +18,11 @@ final class MessageController {
     // MARK: - Get Routes
     
     func fetchMessages(request: Request) throws -> ResponseRepresentable {
-        _ = try? request.auth.user() as! LehiUser
-        return try Message.all().makeResponse()
+        if let _ = try? request.auth.user() as! LehiUser {
+            return try Message.all().makeResponse()
+        } else {
+            throw InvalidSessionError()
+        }
     }
     
     func fetchMessage(request: Request, message: Message) throws -> ResponseRepresentable {

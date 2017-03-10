@@ -1,5 +1,6 @@
 import Vapor
 import VaporMySQL
+import Auth
 
 // MARK: - Setup Vapor and Database Preparations
 
@@ -8,6 +9,11 @@ try drop.addProvider(VaporMySQL.Provider)
 drop.preparations += LehiUser.self
 drop.preparations += Message.self
 drop.preparations += Follow.self
+
+// MARK: - Middleware
+
+let auth = AuthMiddleware(user: LehiUser.self)
+drop.middleware.append(auth)
 
 // MARK: - Setup Routes
 

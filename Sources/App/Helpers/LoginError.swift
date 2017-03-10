@@ -23,3 +23,13 @@ struct BlankPassword: LoginError {
     
     let description = "You need to enter a password."
 }
+
+/**
+ UserDoesntExist represents an error when the user they are trying to sign in as does not exist.
+ */
+
+struct UserDoesntExist: LoginError {
+    init() {}
+    
+    let description = "User doesn't exist."
+}

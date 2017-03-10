@@ -4,7 +4,7 @@ import Turnstile
 import TurnstileCrypto
 import Auth
 
-final class LehiUser: User, Model {
+final class LehiUser: Model {
     
     // MARK: - Conform to Entity
     
@@ -130,29 +130,34 @@ extension Sequence where Iterator.Element == LehiUser {
 
 // MARK: - User Authentication
 
-extension LehiUser: Authenticator {
+extension LehiUser: User {
     static func authenticate(credentials: Credentials) throws -> User {
-        
-        var user: LehiUser?
         
         switch credentials {
         case let credentials as UsernamePassword:
-            let fetchedUser = try LehiUser.query().filter("username", credentials.username).first()
+            let fetchedUser = try LehiUser.query().filter(Keys.username, credentials.username).first()
+            guard let user = fetchedUser else {
+                throw UserDoesntExist()
+            }
             
-            if let password = fetchedUser?.password, password != "",
-                (try? BCrypt.verify(password: credentials.password, matchesHash: password)) == true {
-                
-                user = fetchedUser
+            if try BCrypt.verify(password: credentials.password, matchesHash: user.password) {
+                return user
+            } else {
+                throw IncorrectCredentialsError()
             }
         case let credentials as Identifier:
-            user = try LehiUser.find(credentials.id)
-        default: throw UnsupportedCredentialsError()
-        }
-        
-        if let user = user {
+            guard let user = try LehiUser.find(credentials.id) else {
+                throw InvalidSessionError()
+            }
+            
             return user
-        } else {
-            throw IncorrectCredentialsError()
+        case let accessToken as AccessToken:
+            guard let user = try LehiUser.query().filter(Keys.accesstoken, accessToken.string).first() else {
+                throw InvalidSessionError()
+            }
+            
+            return user
+        default: throw UnsupportedCredentialsError()
         }
         
     }
