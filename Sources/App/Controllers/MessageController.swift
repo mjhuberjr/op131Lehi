@@ -22,6 +22,11 @@ final class MessageController {
     // MARK: - Get Routes
     
     func fetchMessages(request: Request) throws -> ResponseRepresentable {
+        if let query = request.query?["id"]?.int {
+            guard let message = try Message.find(query) else { throw Abort.badRequest }
+            return message
+        }
+
         return try Message.all().makeResponse()
     }
     
