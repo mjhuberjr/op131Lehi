@@ -27,7 +27,21 @@ extension Request {
     }
     
     func message() throws -> Message {
-        guard let json = json else { throw Abort.badRequest }
+        guard let json = json else {
+            guard let userID = data[Keys.messageUserID]?.string,
+                let text = data[Keys.text]?.string else { throw Abort.badRequest }
+
+            let messageParentID = data[Keys.messageParentID]?.int
+
+            let json = try JSON(node: [
+                Keys.messageUserID: userID,
+                Keys.text: text,
+                Keys.messageParentID: messageParentID
+                ])
+
+            return try Message(node: json)
+        }
+
         return try Message(node: json)
     }
 }
