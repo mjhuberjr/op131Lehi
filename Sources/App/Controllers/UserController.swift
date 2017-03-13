@@ -16,7 +16,7 @@ final class UserController {
         let protect = ProtectMiddleware(error: error)
         
         let op131LehiProtected = drop.grouped(protect).grouped("op131Lehi/users")
-        op131LehiProtected.get("/", handler: fetchUsers)
+        op131LehiProtected.get("/", handler: queryMessagesByUser)
         op131LehiProtected.get("/", LehiUser.self, handler: fetchMessagesByUser)
         op131LehiProtected.get("logout", handler: logout)
         
@@ -24,9 +24,13 @@ final class UserController {
     }
     
     // MARK: - Get Routes
-    
-    func fetchUsers(request: Request) throws -> ResponseRepresentable {
-        return try LehiUser.all().makeResponse()
+
+    func queryMessagesByUser(request: Request) throws -> ResponseRepresentable {
+        guard let username = request.query?[Keys.username]?.string else { throw Abort.badRequest }
+        guard let user = try LehiUser.query().filter(Keys.username, contains: username).first() else { throw UserDoesntExist() }
+
+        let messages = try user.messages()
+        return try messages.makeResponse()
     }
     
     func fetchMessagesByUser(request: Request, user: LehiUser) throws -> ResponseRepresentable {
