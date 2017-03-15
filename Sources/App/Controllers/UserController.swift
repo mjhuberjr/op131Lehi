@@ -82,11 +82,10 @@ final class UserController {
     }
     
     func login(request: Request) throws -> ResponseRepresentable {
-        
-        guard let username = request.json?[Keys.username]?.string else { throw BlankUsername() }
-        guard let password = request.json?[Keys.password]?.string else { throw BlankPassword() }
-        
-        let credentials = UsernamePassword(username: username, password: password)
+        guard let key = request.auth.header?.basic else { throw Abort.badRequest }
+        print("\(request.auth.header?.header)")
+
+        let credentials = UsernamePassword(username: key.id, password: key.secret)
         do {
             try request.auth.login(credentials)
             return Response(redirect: "/")

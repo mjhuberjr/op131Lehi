@@ -18,6 +18,7 @@ final class LehiUser: Model {
     var username: Valid<UsernameValidator>
     var password: String
     var imagePath: String?
+    var access_token: String?
     
     // MARK: - Initializers
     
@@ -25,6 +26,7 @@ final class LehiUser: Model {
          surname: String,
          username: String,
          rawPassword: String,
+         access_token: String? = nil,
          imagePath: String? = nil) throws {
         
         self.givenName = try givenName.validated()
@@ -33,6 +35,7 @@ final class LehiUser: Model {
         let validatedPassword: Valid<PasswordValidator> = try rawPassword.validated()
         self.password = BCrypt.hash(password: validatedPassword.value)
         self.imagePath = imagePath ?? ""
+        self.access_token = access_token ?? ""
     }
     
     // MARK: - NodeInitializable
@@ -51,6 +54,8 @@ final class LehiUser: Model {
         
         let passwordString = try node.extract(Keys.password) as String
         password = passwordString
+
+        access_token = try node.extract(Keys.accesstoken) as String
         
         imagePath = try node.extract(Keys.imagePath) as String
     }
@@ -64,6 +69,7 @@ final class LehiUser: Model {
             Keys.surname: surname.value,
             Keys.username: username.value,
             Keys.password: password,
+            Keys.accesstoken: access_token,
             Keys.imagePath: imagePath
             ])
     }
@@ -77,6 +83,7 @@ final class LehiUser: Model {
             users.string(Keys.surname)
             users.string(Keys.username)
             users.string(Keys.password)
+            users.string(Keys.accesstoken)
             users.string(Keys.imagePath)
             users.parent(Follow.self, optional: true)
         }
@@ -95,7 +102,7 @@ final class LehiUser: Model {
                          imageName: String? = nil,
                          imageBytes: Bytes? = nil,
                          imagePath: String? = nil) throws -> LehiUser {
-        
+
         var newUser = try LehiUser(givenName: givenName, surname: surname, username: username, rawPassword: rawPassword, imagePath: imagePath)
         if try LehiUser.query().filter(Keys.username, newUser.username.value).first() == nil {
             newUser.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
@@ -139,7 +146,7 @@ extension LehiUser: User {
             guard let user = fetchedUser else {
                 throw UserDoesntExist()
             }
-            
+
             if try BCrypt.verify(password: credentials.password, matchesHash: user.password) {
                 return user
             } else {
