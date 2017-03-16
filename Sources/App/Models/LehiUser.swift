@@ -107,6 +107,7 @@ final class LehiUser: Model {
         if try LehiUser.query().filter(Keys.username, newUser.username.value).first() == nil {
             newUser.imagePath = try SaveImage.save(imageName: imageName, image: imageBytes)
             try newUser.save()
+
             return newUser
         } else {
             throw AccountTakenError()
@@ -156,8 +157,18 @@ extension LehiUser: User {
             guard let user = try LehiUser.find(credentials.id) else {
                 throw InvalidSessionError()
             }
-            
+
             return user
+        case let apiKey as APIKey:
+            guard let user = try LehiUser.query().filter(Keys.username, apiKey.id).first() else {
+                throw IncorrectCredentialsError()
+            }
+
+            if try BCrypt.verify(password: apiKey.secret, matchesHash: user.password) {
+                return user
+            } else {
+                throw IncorrectCredentialsError()
+            }
         case let accessToken as AccessToken:
             guard let user = try LehiUser.query().filter(Keys.accesstoken, accessToken.string).first() else {
                 throw InvalidSessionError()

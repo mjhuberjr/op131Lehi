@@ -11,11 +11,9 @@ final class UserController {
         op131Lehi.post("login", handler: login)
         
         // MARK: - Protected Routes
-        
-        let error = Abort.custom(status: .forbidden, message: "Invalid credentials.")
-        let protect = ProtectMiddleware(error: error)
-        
-        let op131LehiProtected = drop.grouped(protect).grouped("op131Lehi/users")
+        // TODO: Again need it's own middleware to handle authentication correctly
+
+        let op131LehiProtected = drop.grouped("op131Lehi/users")
         op131LehiProtected.get("/", handler: queryMessagesByUser)
         op131LehiProtected.get("/", LehiUser.self, handler: fetchMessagesByUser)
         op131LehiProtected.get("logout", handler: logout)
@@ -26,6 +24,9 @@ final class UserController {
     // MARK: - Get Routes
 
     func queryMessagesByUser(request: Request) throws -> ResponseRepresentable {
+        guard let credentials = request.auth.header?.basic else { throw InvalidSessionError() }
+        try request.auth.login(credentials)
+
         guard let username = request.query?[Keys.username]?.string else { throw Abort.badRequest }
         guard let user = try LehiUser.query().filter(Keys.username, contains: username).first() else { throw UserDoesntExist() }
 
@@ -34,11 +35,16 @@ final class UserController {
     }
     
     func fetchMessagesByUser(request: Request, user: LehiUser) throws -> ResponseRepresentable {
+        guard let credentials = request.auth.header?.basic else { throw InvalidSessionError() }
+        try request.auth.login(credentials)
+
         let messages = try user.messages()
         return try messages.makeResponse()
     }
     
     func logout(request: Request) throws -> ResponseRepresentable {
+        guard let credentials = request.auth.header?.basic else { throw InvalidSessionError() }
+        try request.auth.login(credentials)
         try request.auth.logout()
         return Response(redirect: "/")
     }
@@ -82,12 +88,11 @@ final class UserController {
     }
     
     func login(request: Request) throws -> ResponseRepresentable {
-        guard let key = request.auth.header?.basic else { throw Abort.badRequest }
-        print("\(request.auth.header?.header)")
+        guard let credentials = request.auth.header?.basic else { throw Abort.badRequest }
 
-        let credentials = UsernamePassword(username: key.id, password: key.secret)
         do {
             try request.auth.login(credentials)
+
             return Response(redirect: "/")
         } catch let error as TurnstileError {
             return error.description
@@ -96,6 +101,8 @@ final class UserController {
     }
     
     func updateProfile(request: Request, profile: LehiUser) throws -> ResponseRepresentable {
+        guard let credentials = request.auth.header?.basic else { throw InvalidSessionError() }
+        try request.auth.login(credentials)
         
         if request.headers["Content-Type"] == "application/json" {
             
