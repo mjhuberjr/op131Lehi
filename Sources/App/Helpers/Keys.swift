@@ -12,7 +12,6 @@ enum Keys {
     static let password = "password"
     static let imagePath = "imagePath"
     static let image = "image"
-    static let accesstoken = "access_token"
     
     // MARK: - Message Keys
     

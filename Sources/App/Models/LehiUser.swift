@@ -18,7 +18,6 @@ final class LehiUser: Model {
     var username: Valid<UsernameValidator>
     var password: String
     var imagePath: String?
-    var access_token: String?
     
     // MARK: - Initializers
     
@@ -35,7 +34,6 @@ final class LehiUser: Model {
         let validatedPassword: Valid<PasswordValidator> = try rawPassword.validated()
         self.password = BCrypt.hash(password: validatedPassword.value)
         self.imagePath = imagePath ?? ""
-        self.access_token = access_token ?? ""
     }
     
     // MARK: - NodeInitializable
@@ -55,8 +53,6 @@ final class LehiUser: Model {
         let passwordString = try node.extract(Keys.password) as String
         password = passwordString
 
-        access_token = try node.extract(Keys.accesstoken) as String
-        
         imagePath = try node.extract(Keys.imagePath) as String
     }
     
@@ -69,7 +65,6 @@ final class LehiUser: Model {
             Keys.surname: surname.value,
             Keys.username: username.value,
             Keys.password: password,
-            Keys.accesstoken: access_token,
             Keys.imagePath: imagePath
             ])
     }
@@ -83,7 +78,6 @@ final class LehiUser: Model {
             users.string(Keys.surname)
             users.string(Keys.username)
             users.string(Keys.password)
-            users.string(Keys.accesstoken)
             users.string(Keys.imagePath)
             users.parent(Follow.self, optional: true)
         }
@@ -169,12 +163,6 @@ extension LehiUser: User {
             } else {
                 throw IncorrectCredentialsError()
             }
-        case let accessToken as AccessToken:
-            guard let user = try LehiUser.query().filter(Keys.accesstoken, accessToken.string).first() else {
-                throw InvalidSessionError()
-            }
-            
-            return user
         default: throw UnsupportedCredentialsError()
         }
         
